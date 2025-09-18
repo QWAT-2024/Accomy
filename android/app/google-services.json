@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "372588568893",
+    "project_id": "accomy-cit",
+    "storage_bucket": "accomy-cit.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:372588568893:android:289e6f5a878336fb3e6554",
+        "android_client_info": {
+          "package_name": "com.example.accomy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "372588568893-gshre5lgnva98qmqtrlndsb08sp4oa4k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGypojIz01t98s-SoTtA1zPB9LaRxQvdI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "372588568893-gshre5lgnva98qmqtrlndsb08sp4oa4k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
