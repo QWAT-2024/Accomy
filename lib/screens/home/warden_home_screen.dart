@@ -1,15 +1,15 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:accomy/screens/login_screen.dart';
 
-class StaffHomeScreen extends StatelessWidget {
-  const StaffHomeScreen({super.key});
+class WardenHomeScreen extends StatelessWidget {
+  const WardenHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Staff Home'),
+        title: const Text('Warden Home'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -23,7 +23,7 @@ class StaffHomeScreen extends StatelessWidget {
         ],
       ),
       body: const Center(
-        child: Text('Welcome, Staff!'),
+        child: Text('Welcome, Warden!'),
       ),
     );
   }

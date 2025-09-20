@@ -41,9 +41,13 @@ class StudentOutpassDetailsScreen extends StatelessWidget {
                 Text('Avail Bus: ${data['availBus'] ?? false ? 'Yes' : 'No'}'),
                 Text('Status: ${data['status'] ?? 'N/A'}'),
                 const SizedBox(height: 20),
-                if (data['status'] == 'approved' && data['qr_code'] != null)
+                if (data['qr_data'] != null)
                   Center(
-                    child: Image.network(data['qr_code']),
+                    child: QrImageView(
+                      data: data['qr_data'],
+                      version: QrVersions.auto,
+                      size: 200.0,
+                    ),
                   ),
               ],
             ),

@@ -80,20 +80,7 @@ class _OutingsScreenState extends State<OutingsScreen>
           'status': 'pending',
         });
 
-        final qrImageData = await QrPainter(
-          data: docRef.id,
-          version: QrVersions.auto,
-          gapless: false,
-        ).toImageData(200);
-
-        final storageRef = FirebaseStorage.instance
-            .ref()
-            .child('qr_codes')
-            .child('${docRef.id}.png');
-        await storageRef.putData(qrImageData!.buffer.asUint8List());
-        final downloadUrl = await storageRef.getDownloadURL();
-
-        await docRef.update({'qr_code': downloadUrl});
+        await docRef.update({'qr_data': docRef.id});
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Pass requested successfully!')),
@@ -146,7 +133,7 @@ class _OutingsScreenState extends State<OutingsScreen>
                   labelText: 'Leave Type', // Added label for clarity
                 ),
                 value: _leaveType,
-                items: ['Home Town (College)', 'Local']
+                items: ['Home Town (College)', 'Home Town (Leave)', 'Local']
                     .map((label) => DropdownMenuItem(
                           value: label,
                           child: Text(label),
@@ -222,7 +209,7 @@ class _OutingsScreenState extends State<OutingsScreen>
                         });
                       },
                     ),
-                    const Text('Avail Bus Transport'),
+                    const Flexible(child: Text('Avail Bus Transport')),
                   ],
                 ),
               ),

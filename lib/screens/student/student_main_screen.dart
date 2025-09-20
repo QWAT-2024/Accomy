@@ -30,7 +30,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       final userDoc = await FirebaseFirestore.instance
-          .collection('users')
+          .collection('students')
           .doc(user.uid)
           .get();
       if (userDoc.exists) {
@@ -79,7 +79,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 80, 16, 60),
+      padding: const EdgeInsets.fromLTRB(16, 70, 16, 50),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [Color.fromARGB(255, 9, 86, 186), Color.fromARGB(255, 255, 255, 255)],
@@ -127,15 +127,6 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
           //   ),
           // ),
           const Spacer(),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-              );
-            },
-          ),
         ],
       ),
     );

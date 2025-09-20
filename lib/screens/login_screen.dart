@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:accomy/screens/student/student_main_screen.dart';
-import 'package:accomy/screens/home/staff_home_screen.dart';
-import 'package:accomy/screens/home/hosteller_home_screen.dart';
+import 'package:accomy/screens/home/tutor_home_screen.dart';
+import 'package:accomy/screens/home/warden_home_screen.dart';
 import 'package:accomy/screens/home/gate_security_home_screen.dart';
-import 'package:accomy/screens/registration_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,7 +18,6 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _email;
   String? _password;
   String _userType = 'staff'; // 'student' or 'staff'
-  String _staffRole = 'tutor'; // Default staff role
   bool _isPasswordVisible = false;
   final _auth = FirebaseAuth.instance;
 
@@ -32,34 +30,40 @@ class _LoginScreenState extends State<LoginScreen> {
           password: _password!,
         );
 
-        DocumentSnapshot userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userCredential.user!.uid)
-            .get();
+        if (_userType == 'student') {
+          DocumentSnapshot studentDoc = await FirebaseFirestore.instance
+              .collection('students')
+              .doc(userCredential.user!.uid)
+              .get();
 
-        if (userDoc.exists) {
-          String userRole = userDoc.get('role');
-          bool isRoleCorrect = false;
-
-          if (_userType == 'student' && userRole == 'student') {
-            isRoleCorrect = true;
-          } else if (_userType == 'staff' &&
-              ['tutor', 'warden', 'gate_security', 'staff'].contains(userRole)) {
-            isRoleCorrect = true;
+          if (studentDoc.exists) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const StudentMainScreen()),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Student details not found.')),
+            );
+            await _auth.signOut();
           }
+        } else { // Staff login
+          DocumentSnapshot staffDoc = await FirebaseFirestore.instance
+              .collection('staff')
+              .doc(userCredential.user!.uid)
+              .get();
 
-          if (isRoleCorrect) {
+          if (staffDoc.exists) {
+            String userRole = staffDoc.get('role');
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) {
                   switch (userRole) {
-                    case 'student':
-                      return const StudentMainScreen();
-                    case 'staff':
-                    case 'tutor':
-                    case 'warden':
-                    case 'gate_security':
-                      return const StaffHomeScreen();
+                    case 'Security':
+                      return const GateSecurityHomeScreen();
+                    case 'Tutor':
+                      return const TutorHomeScreen();
+                    case 'Warden':
+                      return const WardenHomeScreen();
                     default:
                       return const LoginScreen();
                   }
@@ -68,15 +72,10 @@ class _LoginScreenState extends State<LoginScreen> {
             );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('The selected role is incorrect.')),
+              const SnackBar(content: Text('Staff details not found.')),
             );
             await _auth.signOut();
           }
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('User details not found.')),
-          );
-          await _auth.signOut();
         }
       } on FirebaseAuthException catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -211,16 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: const Text('LOGIN'),
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const RegistrationScreen(),
-                    ),
-                  );
-                },
-                child: const Text('Don\'t have an account? Register'),
-              ),
+              const SizedBox(height: 20), // Placeholder for removed button
             ],
           ),
         ),
