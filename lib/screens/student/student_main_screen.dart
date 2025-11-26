@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:accomy/screens/home/student_home_screen.dart';
-import 'package:accomy/screens/student/chat_screen.dart';
+import 'package:accomy/screens/student/announcements_screen.dart';
 import 'package:accomy/screens/student/profile_screen.dart';
-import 'package:accomy/screens/login_screen.dart';
 
 class StudentMainScreen extends StatefulWidget {
-  const StudentMainScreen({super.key});
+  final DocumentSnapshot userData;
+
+  const StudentMainScreen({super.key, required this.userData});
 
   @override
   State<StudentMainScreen> createState() => _StudentMainScreenState();
@@ -15,120 +15,58 @@ class StudentMainScreen extends StatefulWidget {
 
 class _StudentMainScreenState extends State<StudentMainScreen> {
   int _selectedIndex = 0;
-  final PageController _pageController = PageController();
+  late final PageController _pageController;
 
-  String? _name;
-  String? _imageUrl;
+  String? _selectedAnnouncementId;
 
   @override
   void initState() {
     super.initState();
-    _fetchUserData();
+    _pageController = PageController();
   }
 
-  Future<void> _fetchUserData() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final userDoc = await FirebaseFirestore.instance
-          .collection('students')
-          .doc(user.uid)
-          .get();
-      if (userDoc.exists) {
-        setState(() {
-          _name = userDoc.get('name');
-          _imageUrl = userDoc.get('imageUrl');
-        });
-      }
-    }
-  }
-
-  void _onItemTapped(int index) {
+  void _navigateToTab(int index, {String? announcementId}) {
     setState(() {
       _selectedIndex = index;
-      _pageController.animateToPage(index,
-          duration: const Duration(milliseconds: 300), curve: Curves.ease);
+      _selectedAnnouncementId = announcementId;
     });
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.ease,
+    );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _selectedIndex = index;
+            // BUG FIX: Do NOT clear the announcement ID here.
+            // It will be cleared when the user taps a bottom nav item.
+          });
+        },
         children: [
-          _buildHeader(),
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-              },
-              children: const [
-                StudentHomeScreen(),
-                ChatScreen(),
-                ProfileScreen(),
-              ],
-            ),
+          StudentHomeScreen(
+            onNavigateToMainTab: _navigateToTab,
+            userData: widget.userData,
           ),
+          AnnouncementsScreen(
+            selectedAnnouncementId: _selectedAnnouncementId,
+          ),
+          ProfileScreen(userData: widget.userData),
         ],
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 70, 16, 50),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color.fromARGB(255, 9, 86, 186), Color.fromARGB(255, 255, 255, 255)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundImage: _imageUrl != null
-                ? NetworkImage(_imageUrl!)
-                : const NetworkImage(
-                    'https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png'),
-          ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Hello! Welcome back',
-                style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
-              ),
-              Text(
-                _name ?? 'Student',
-                style: const TextStyle(
-                  color: Color.fromARGB(255, 0, 0, 0),
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          // const Spacer(),
-          // Container(
-          //   padding: const EdgeInsets.all(8),
-          //   decoration: BoxDecoration(
-          //     color: Colors.white.withOpacity(0.3),
-          //     borderRadius: BorderRadius.circular(12),
-          //   ),
-          //   child: const Icon(
-          //     Icons.home,
-          //     color: Colors.white,
-          //   ),
-          // ),
-          const Spacer(),
-        ],
-      ),
     );
   }
 
@@ -138,8 +76,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 2,
+            color: const Color.fromARGB(255, 212, 212, 212),
             blurRadius: 5,
             offset: const Offset(0, -3),
           ),
@@ -147,18 +84,20 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
       ),
       child: BottomNavigationBar(
         backgroundColor: Colors.transparent,
-        selectedItemColor: Colors.indigo[900],
+        selectedItemColor: const Color.fromARGB(255, 13, 40, 92),
         elevation: 0,
         currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+        // Tapping a nav item will correctly pass a null announcementId,
+        // clearing any previous selection.
+        onTap: (index) => _navigateToTab(index),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Chat',
+            icon: Icon(Icons.campaign),
+            label: 'Announcements',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

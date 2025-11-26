@@ -39,7 +39,10 @@ class StudentOutpassDetailsScreen extends StatelessWidget {
                 Text('Destination: ${data['destination'] ?? 'N/A'}'),
                 Text('Reason: ${data['reason'] ?? 'N/A'}'),
                 Text('Avail Bus: ${data['availBus'] ?? false ? 'Yes' : 'No'}'),
-                Text('Status: ${data['status'] ?? 'N/A'}'),
+                const SizedBox(height: 10),
+                Text('Warden Approval Status: ${data['wardenApprovalStatus'] ?? 'N/A'}'),
+                if (data['leaveType'] == 'Home Town (College)')
+                  Text('Tutor Approval Status: ${data['tutorApprovalStatus'] ?? 'N/A'}'),
                 const SizedBox(height: 20),
                 if (data['qr_data'] != null)
                   Center(
